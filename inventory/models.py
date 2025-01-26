@@ -3,24 +3,35 @@ from decimal import Decimal
 
 # Ingredient Model
 class Ingredient(models.Model):
-    ingredient = models.CharField(max_length=30)
+    ingredient = models.CharField(max_length=30, blank=True)
     # price per unit of measure
-    unit_price = models.DecimalField(max_digits=5, decimal_places=2) 
-    unit = models.CharField(max_length=10) # unit of measure
+    unit_price = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2,
+        default=Decimal('0.0')) 
+    # unit of measure
+    unit_measure = models.CharField(max_length=10, blank=True) 
     # quantity available per ingredient
-    quantity = models.PositiveIntegerField(default=0)
+    quantity = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=Decimal('0.0')
+    )
+
+    def __str__(self):
+        return self.ingredient
 
     # Implement data constraints at the database level
     class Meta:
         constraints = [
             # Prevent unit prices less than or equal to zero
             models.CheckConstraint(
-                check=models.Q(unit_price__gte=Decimal('0.01')),
+                check=models.Q(unit_price__gte=Decimal('0.0')),
                 name='unit_price_gt_0'
             ),
             # Prevent quantity values less than zero
             models.CheckConstraint(
-                check=models.Q(quantity__gte=0),
+                check=models.Q(quantity__gte=Decimal('0.0')),
                 name='ingredient_quantity_gte_0'
             )
         ]
@@ -29,7 +40,13 @@ class Ingredient(models.Model):
 class MenuItem(models.Model):
     menu_item = models.CharField(max_length=40, blank=True)
     # item price
-    item_price = models.DecimalField(max_digits=5, decimal_places=2)
+    item_price = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        default=Decimal('0.0'))
+    
+    def __str__(self):
+        return self.menu_item
 
     # Implement data constraints at the database level
     class Meta:
@@ -42,16 +59,20 @@ class MenuItem(models.Model):
         ]
 
 # Recipe Model
-class RecipeRequirements(models.Model):
-    # Quantity of an ingredient
-    quantity = models.DecimalField(max_digits=5, decimal_places=2)
-    # unit of measure
-    unit = models.CharField(max_length=4)
+class RecipeRequirement(models.Model):
     # connect associated models
     # MenuItem model
     menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
     # Ingredient model required. 
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    # Quantity of an ingredient
+    quantity = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2,
+        default=Decimal('0.0'))
+    
+    def __str__(self):
+        return str(self.menu_item)
 
     # Implement data constraints at the database level
     class Meta:
@@ -66,6 +87,16 @@ class RecipeRequirements(models.Model):
 # Purchase Model
 class Purchase(models.Model):
     # connect to MenuItem model
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE)
+    menu_item = models.ForeignKey(
+        MenuItem, 
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True)
     # timestamp purchase
     timestamp = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        
+        return str(self.timestamp.strftime("%Y-%m-%d %H:%M"))+ " $" + str(
+                self.menu_item.item_price)
+    
