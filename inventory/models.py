@@ -3,7 +3,7 @@ from decimal import Decimal
 
 # Ingredient Model
 class Ingredient(models.Model):
-    ingredient = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=30, blank=True)
     # price per unit of measure
     unit_price = models.DecimalField(
         max_digits=5, 
@@ -19,7 +19,7 @@ class Ingredient(models.Model):
     )
 
     def __str__(self):
-        return self.ingredient
+        return self.name
 
     # Implement data constraints at the database level
     class Meta:
@@ -38,7 +38,7 @@ class Ingredient(models.Model):
 
 # Menu Item Model
 class MenuItem(models.Model):
-    menu_item = models.CharField(max_length=40, blank=True)
+    name = models.CharField(max_length=40, blank=True)
     # item price
     item_price = models.DecimalField(
         max_digits=5, 
@@ -46,7 +46,7 @@ class MenuItem(models.Model):
         default=Decimal('0.0'))
     
     def __str__(self):
-        return self.menu_item
+        return self.name
 
     # Implement data constraints at the database level
     class Meta:
@@ -96,7 +96,6 @@ class Purchase(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        
-        return str(self.timestamp.strftime("%Y-%m-%d %H:%M"))+ " $" + str(
-                self.menu_item.item_price)
+        return str(self.timestamp.strftime("%Y-%m-%d %H:%M "))\
+            + self.menu_item.name + " $" + str(self.menu_item.item_price)
     
