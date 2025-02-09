@@ -117,6 +117,18 @@ class TestModels(TestCase):
     def test_purchase_ret_str(self):
         self.assertEqual(str(self.purchase), self.TIME.strftime("%Y-%m-%d %H:%M ")\
             + "Cake $5.99")
+    # test method of the Purchase model named process_purchase
+    # menu items that are not related to a recipe are not processed    
+    def test_process_purchase_constraint(self):
+        self.recipe.delete()
+        self.assertFalse(self.purchase.process_purchase)
+    # a menu item cannot be purchased if ingredients aren't available in inventory
+    def test_neg_purchase_inventory_check(self):
+        self.recipe.quantity = Decimal('900')
+        self.recipe.save(update_fields=['quantity'])
+        self.assertFalse(self.purchase.process_purchase, )
+    # test inventory check that confirms enough inventory stock is available
+    def test_pos_purchase_inventory_check(self):
+        self.assertTrue(self.purchase.process_purchase)
+
     
-
-

@@ -1,5 +1,24 @@
 from django.db import models
 from decimal import Decimal
+import logging, sys
+
+# create logger
+logger = logging.getLogger(__name__)
+# create handlers for log output to console and file
+stream_handler = logging.StreamHandler(sys.stdout)
+file_handler = logging.FileHandler("django_delights_inventory.log")
+# set logging format
+formatter = logging.Formatter(
+    '[%(asctime)s] %(levelname)s [%(message)s] [%(name)s: %(lineno)d]')
+#info_fmt = logging.Formatter('[%(asctime)s] %(levelname)s [%(message)s]')
+stream_handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
+# add handlers to logger
+logger.addHandler(stream_handler)
+logger.addHandler(file_handler)
+# set the logging level
+logger.setLevel(logging.INFO)
+
 
 # Ingredient Model
 class Ingredient(models.Model):
@@ -91,11 +110,43 @@ class Purchase(models.Model):
         MenuItem, 
         on_delete=models.SET_NULL,
         null=True,
-        blank=True)
+        blank=True
+    )
     # timestamp purchase
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return str(self.timestamp.strftime("%Y-%m-%d %H:%M "))\
             + self.menu_item.name + " $" + str(self.menu_item.item_price)
-    
+ 
+    @property
+    def process_purchase(self):
+        # Get recipe requirements for the requested menu item
+        recipe = RecipeRequirement.objects.filter(menu_item_id=self.menu_item.pk)
+        # if the menu item does not have a recipe, return false
+        if not recipe.exists():
+            logger.info('Menu Items require a recipe')
+            return False
+        # loop through the ingredients list
+        # if there are not enough ingredients to make an item, return false
+        for item in recipe:
+            if item.quantity > Ingredient.objects.get(id=item.ingredient.pk).quantity:
+                logger.info(self.menu_item.name + ': insufficient ingredient stock')
+                return False
+        # if there are enough ingredients to make a menu item,
+        # deduct the quantity of all required ingredients from inventory       
+        for item in recipe:
+            # Get Ingredient Object from Ingredient database
+            ingredient = Ingredient.objects.get(id=item.ingredient.pk)
+            logger.debug(ingredient.name + " " + str(ingredient.quantity))
+
+            # Update Ingredient Object quantity
+            # using variables to shorten line length
+            filter = Ingredient.objects.filter(pk=item.ingredient.pk)   
+            filter.update(quantity = ingredient.quantity - item.quantity)
+            # Get updated Ingredient Object for logging
+            ingredient = Ingredient.objects.get(id=item.ingredient.pk)
+            logger.debug(ingredient.name + " " + str(ingredient.quantity))
+        
+        logger.info('Purchase processed')
+        return True
