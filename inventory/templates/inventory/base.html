@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link 
+      rel="stylesheet" 
+      type="text/css" 
+      href="{% static 'inventory/style.css' %}"
+    />
+    <title>
+      {% block title %}Django Delights{% endblock %}
+    </title>
+      {% block head %}{% endblock %}
+  </head>
+  <body>
+    <header>
+      <div class="header-row">
+        <a href="{% url 'login' %}">
+          <img 
+            src="{% static 'inventory/cupcake_12539570.gif' %}"
+            alt="Clickable Django Delights Image"
+            width="80px"
+          />
+        </a>
+        <h1 class="title">Django Delights</h1>
+        <nav class="navbar">
+            <a class="nav-item" href="{% url '' %}">Menu</a>
+            <a class="nav-item" href="{% url '' %}">Inventory</a>
+            <a class="nav-item" href="{% url '' %}">Sales</a>
+            <a class="nav-item" href="{% url '' %}">
+              <img 
+                src="{% static 'inventory/shopping_16146040.png' %}"
+                alt="Purchase Icon"
+              />    
+            </a>
+            <a class="nav-account-icon" href="{% url '' %}">
+              <img 
+                src="{% static 'inventory/login_17905767.gif' %}"
+                alt="Login Icon"
+              />    
+            </a>          
+        </nav>
+      </div>
+    </header>
+    <main>
+      {% block content %}{% endblock %}   
+    </main>
+    <footer>
+      <a href="https://www.freepik.com/search#uuid=f3a17e1f-fa64-40f6-98ca-5ddbeb64bd40">
+        Icons by Freepik
+      </a>
+    </footer>
+  </body>
+</html>
