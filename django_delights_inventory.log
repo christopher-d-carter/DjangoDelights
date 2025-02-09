@@ -1,5 +1,0 @@
-[2025-02-09 06:30:34,307] INFO [Cake: insufficient ingredient stock] [inventory.models: 134]
-[2025-02-09 06:30:34,309] DEBUG [Flour 16.50] [inventory.models: 141]
-[2025-02-09 06:30:34,309] DEBUG [Flour 14.30] [inventory.models: 149]
-[2025-02-09 06:30:34,310] INFO [Purchase processed] [inventory.models: 151]
-[2025-02-09 06:30:34,311] INFO [Menu Items require a recipe] [inventory.models: 128]
